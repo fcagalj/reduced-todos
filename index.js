@@ -99,6 +99,10 @@ combineReducers({
   visibilityFilter
 });
 
+/////////////////////////////////////////////////////////////////////////////
+//COMPONENETS////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
 class FilterLink extends React.Component {
   componentDidMount() {
     this.unsubscribe = store.subscribe(() => {
@@ -163,7 +167,7 @@ const filterTodos = ({todos, visibilityFilter}) => {
   }
 };
 
-const AddToDo = ({onAddTodo}) => {
+const AddToDo = () => {
   let some;
   return (
     <p>
@@ -175,7 +179,7 @@ const AddToDo = ({onAddTodo}) => {
       />
       <button
         onClick={() => {
-          onAddTodo(some.value);
+          store.dispatch({type: "ADD", text: some.value, id: count++});
           some.value = "";
         }}
       >
@@ -200,18 +204,11 @@ const Footer = () => (
   </p>
 );
 
-const Todos = ({
-                 todos,
-                 visibilityFilter,
-                 onTodoToggle,
-                 onAddTodo,
-                 onFilterClick
-               }) => {
-  const visibleTodos = filterTodos({
-    todos,
-    visibilityFilter
-  });
-  let todoList = visibleTodos.map(t => {
+const TodosList = ({
+                     todos,
+                     onTodoToggle
+                   }) => {
+  let todoList = todos.map(t => {
     return (
       <Todo
         isChecked={t.isChecked}
@@ -225,13 +222,34 @@ const Todos = ({
 
   return (
     <div>
-      <h1>Todos app</h1>
-      <AddToDo onAddTodo={onAddTodo}/>
       <ul>{todoList}</ul>
-      <Footer/>
     </div>
   );
 };
+
+class VisibleTodos extends React.Component {
+  componentDidMount() {
+    this.unsubscribe = store.subscribe(() => {
+      this.forceUpdate();
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  render() {
+    const props = this.props;
+    const state = store.getState();
+
+    return <TodosList todos={filterTodos({
+      todos: state.todos,
+      visibilityFilter: state.visibilityFilter
+    })}
+                      onTodoToggle={id => store.dispatch({type: "TOGGLE", id})}>
+    </TodosList>
+  }
+}
 
 console.log(
   "store.getState().visibilityFilter on loading:::",
@@ -239,23 +257,16 @@ console.log(
 );
 
 let count = 0;
-const App = () => (
-  <Todos
-    {...store.getState()}
-    onTodoToggle={id => store.dispatch({type: "TOGGLE", id})}
-    onAddTodo={text => {
-      store.dispatch({type: "ADD", text, id: count++});
-    }}
-
-  />
+const TodoApp = () => (
+  <div>
+    <h1>Todos app</h1>
+    <AddToDo/>
+    <VisibleTodos/>
+    <Footer/>
+  </div>
 );
 
-const render = () => {
-  ReactDOM.render(<App/>, document.getElementById("root"));
-};
-
-store.subscribe(render);
-render();
+ReactDOM.render(<TodoApp/>, document.getElementById("root"));
 
 testAddTod();
 testToggleTodo();
