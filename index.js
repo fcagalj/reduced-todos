@@ -7,7 +7,6 @@ const todo = (state = {}, action) => {
         isChecked: false
       };
     case "TOGGLE":
-      console.log("t o g g l i n g :: ", state, action);
       if (state.id !== action.id) {
         return state;
       }
@@ -15,7 +14,6 @@ const todo = (state = {}, action) => {
         ...state,
         isChecked: !state.isChecked
       };
-      console.log("State after toggle: ", r);
       return r;
     default:
       return [...state];
@@ -23,7 +21,6 @@ const todo = (state = {}, action) => {
 };
 
 const todos = (state = [], action) => {
-  console.log("dispatch: ", state, action);
   switch (action.type) {
     case "ADD":
       return [...state, todo(null, action)];
@@ -90,9 +87,7 @@ const testToggleTodo = () => {
   ]);
 };
 
-const {createStore} = Redux;
 const {combineReducers} = Redux;
-const store = createStore(todoApp);
 
 combineReducers({
   todos,
@@ -105,6 +100,7 @@ combineReducers({
 
 class FilterLink extends React.Component {
   componentDidMount() {
+    const {store} = this.props;
     this.unsubscribe = store.subscribe(() => {
       this.forceUpdate();
     });
@@ -116,6 +112,7 @@ class FilterLink extends React.Component {
 
   render() {
     const props = this.props;
+    const {store} = this.props;
     const state = store.getState();
     return <Link
       active={props.filter === state.visibilityFilter}
@@ -154,7 +151,6 @@ const Todo = ({text, isChecked, onToggle}) => (
 );
 
 const filterTodos = ({todos, visibilityFilter}) => {
-  console.log("filtering %s todos:: %o", visibilityFilter, todos);
   switch (visibilityFilter) {
     case "SHOW_ALL":
       return todos;
@@ -167,7 +163,7 @@ const filterTodos = ({todos, visibilityFilter}) => {
   }
 };
 
-const AddToDo = () => {
+const AddToDo = ({store}) => {
   let some;
   return (
     <p>
@@ -189,16 +185,19 @@ const AddToDo = () => {
   );
 };
 
-const Footer = () => (
+const Footer = ({store}) => (
   <p>
     Show:{" "}
-    <FilterLink filter="SHOW_ALL">
+    <FilterLink filter="SHOW_ALL"
+                store={store}>
       All
     </FilterLink>{" "}
-    <FilterLink filter="SHOW_ACTIVE">
+    <FilterLink filter="SHOW_ACTIVE"
+                store={store}>
       Acive
     </FilterLink>{" "}
-    <FilterLink filter="SHOW_COMPLETED">
+    <FilterLink filter="SHOW_COMPLETED"
+                store={store}>
       Completed
     </FilterLink>
   </p>
@@ -229,6 +228,7 @@ const TodosList = ({
 
 class VisibleTodos extends React.Component {
   componentDidMount() {
+    const {store} = this.props;
     this.unsubscribe = store.subscribe(() => {
       this.forceUpdate();
     });
@@ -240,6 +240,7 @@ class VisibleTodos extends React.Component {
 
   render() {
     const props = this.props;
+    const {store} = this.props;
     const state = store.getState();
 
     return <TodosList todos={filterTodos({
@@ -251,22 +252,20 @@ class VisibleTodos extends React.Component {
   }
 }
 
-console.log(
-  "store.getState().visibilityFilter on loading:::",
-  store.getState().visibilityFilter
-);
-
 let count = 0;
-const TodoApp = () => (
+const TodoApp = ({store}) => (
   <div>
     <h1>Todos app</h1>
-    <AddToDo/>
-    <VisibleTodos/>
-    <Footer/>
+    <AddToDo store={store}/>
+    <VisibleTodos store={store}/>
+    <Footer store={store}/>
   </div>
 );
 
-ReactDOM.render(<TodoApp/>, document.getElementById("root"));
+
+const {createStore} = Redux;
+
+ReactDOM.render(<TodoApp store={createStore(todoApp)}/>, document.getElementById("root"));
 
 testAddTod();
 testToggleTodo();
