@@ -1,0 +1,39 @@
+### Node ###
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules
+bower_components
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Temp directories
+.tmp
+
+### IDE ###
+.idea
+
+### Generated env var ###
+client/app/js/config.js
+
+### Generated files and directories ###
+dist
+client/app/index.html
+client/app/robots.txt
+client/coverage
+
+## OTHERS ###
+.strong-pm
+.sass-cache
+.vagrant
+.project
+.cache
+.config
+.DS_Store
