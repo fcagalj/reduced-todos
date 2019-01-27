@@ -1,3 +1,7 @@
+/////////////////////////////////////////////////////////////////////////////
+//REDUCERS///////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
 const todo = (state = {}, action) => {
   switch (action.type) {
     case "ADD":
@@ -88,6 +92,25 @@ const todoApp = combineReducers({
   visibilityFilter
 });
 
+
+/////////////////////////////////////////////////////////////////////////////
+//ACTION CREATORS////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+let count = 0;
+const addTodo = (text) => {
+  return {type: "ADD", text, id: count++}
+};
+
+const setVisibilityFilter = (filter) => {
+  return {type: "SET_VISIBILITY_FILTER", filter: filter};
+};
+
+const toogleTodo = (id) => {
+  return {type: "TOGGLE", id};
+};
+
+
 /////////////////////////////////////////////////////////////////////////////
 //COMPONENETS////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -120,7 +143,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onClick: () => {
-      dispatch({type: "SET_VISIBILITY_FILTER", filter: ownProps.filter});
+      dispatch(setVisibilityFilter(ownProps.filter));
     }
   }
 };
@@ -161,7 +184,7 @@ let AddToDo = ({dispatch}) => {
       />
       <button
         onClick={() => {
-          dispatch({type: "ADD", text: some.value, id: count++});
+          dispatch(addTodo(some.value));
           some.value = "";
         }}
       >
@@ -223,14 +246,13 @@ const mapStateToProps1 = (state) => {
 const mapDispatchToProps1 = (dispatch => {
   return {
     onTodoToggle: (id) => {
-      dispatch({type: "TOGGLE", id})
+      dispatch(toogleTodo(id))
     }
   }
 });
 
 const VisibleTodos = connect(mapStateToProps1, mapDispatchToProps1)(TodosList);
 
-let count = 0;
 const TodoApp = () => (
   <div>
     <h1>Todos app</h1>
